@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: "Bounded Autonomy"
+message: "If you use this research scaffold, please cite the repository and the associated paper when available."
+type: software
+authors:
+  - family-names: Levy
+    given-names: Jodie
+version: 0.1.0
+date-released: 2026-10-01
+license: MIT
