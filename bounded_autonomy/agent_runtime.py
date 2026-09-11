@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
+from .authorization import IntentAuthorizer
 from .control_plane import ControlPlane
 from .models import ActionRequest, DecisionType, Principal
 from .providers.base import AgentProvider
@@ -25,15 +26,27 @@ class AgentRunner:
         environments: dict[str, Environment],
         principal: Principal,
         control_plane: ControlPlane | None = None,
+        authorizer: IntentAuthorizer | None = None,
     ) -> None:
         self.provider = provider
         self.environments = environments
         self.principal = principal
         self.control_plane = control_plane
+        self.authorizer = authorizer
 
     def run(self, task: str, max_steps: int = 8) -> AgentRun:
-        result = AgentRun(task=task, controlled=self.control_plane is not None)
-        result.transcript.append({"role": "user", "content": task})
+        result = AgentRun(
+            task=task,
+            controlled=(
+                self.control_plane is not None
+                or self.authorizer is not None
+            ),
+        )
+
+        result.transcript.append({
+            "role": "user",
+            "content": task,
+        })
 
         for step_index in range(max_steps):
             step = self.provider.next_step(task, result.transcript)
@@ -57,6 +70,22 @@ class AgentRunner:
                 reversible=step.reversible,
             )
 
+            # Contextual authorization layer.
+            if self.authorizer is not None:
+                allowed, reason = self.authorizer.authorize(request)
+
+                result.transcript.append({
+                    "role": "authorization",
+                    "capability": request.capability,
+                    "allowed": allowed,
+                    "reason": reason,
+                })
+
+                if not allowed:
+                    result.blocked_actions.append(request.capability)
+                    break
+
+            # Existing monitor / policy control plane.
             if self.control_plane is not None:
                 decision = self.control_plane.evaluate(request)
 
