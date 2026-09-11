@@ -5,6 +5,7 @@ from typing import Any
 
 from .authorization import IntentAuthorizer
 from .control_plane import ControlPlane
+from .information_flow import InformationFlowGuard
 from .models import ActionRequest, DecisionType, Principal
 from .providers.base import AgentProvider
 from .environments.base import Environment
@@ -27,6 +28,7 @@ class AgentRunner:
         principal: Principal,
         control_plane: ControlPlane | None = None,
         authorizer: IntentAuthorizer | None = None,
+        flow_guard: InformationFlowGuard | None = None,
         stop_on_block: bool = True,
     ) -> None:
         self.provider = provider
@@ -34,15 +36,17 @@ class AgentRunner:
         self.principal = principal
         self.control_plane = control_plane
         self.authorizer = authorizer
+        self.flow_guard = flow_guard
         self.stop_on_block = stop_on_block
 
     def run(self, task: str, max_steps: int = 8) -> AgentRun:
         result = AgentRun(
             task=task,
-            controlled=(
-                self.control_plane is not None
-                or self.authorizer is not None
-            ),
+            controlled=any([
+                self.control_plane is not None,
+                self.authorizer is not None,
+                self.flow_guard is not None,
+            ]),
         )
 
         result.transcript.append({
@@ -51,7 +55,10 @@ class AgentRunner:
         })
 
         for step_index in range(max_steps):
-            step = self.provider.next_step(task, result.transcript)
+            step = self.provider.next_step(
+                task,
+                result.transcript,
+            )
 
             result.transcript.append({
                 "role": "assistant",
@@ -73,7 +80,9 @@ class AgentRunner:
             )
 
             if self.authorizer is not None:
-                allowed, reason = self.authorizer.authorize(request)
+                allowed, reason = (
+                    self.authorizer.authorize(request)
+                )
 
                 result.transcript.append({
                     "role": "authorization",
@@ -83,7 +92,31 @@ class AgentRunner:
                 })
 
                 if not allowed:
-                    result.blocked_actions.append(request.capability)
+                    result.blocked_actions.append(
+                        request.capability
+                    )
+
+                    if self.stop_on_block:
+                        break
+
+                    continue
+
+            if self.flow_guard is not None:
+                allowed, reason = (
+                    self.flow_guard.authorize(request)
+                )
+
+                result.transcript.append({
+                    "role": "information_flow",
+                    "capability": request.capability,
+                    "allowed": allowed,
+                    "reason": reason,
+                })
+
+                if not allowed:
+                    result.blocked_actions.append(
+                        request.capability
+                    )
 
                     if self.stop_on_block:
                         break
@@ -91,7 +124,9 @@ class AgentRunner:
                     continue
 
             if self.control_plane is not None:
-                decision = self.control_plane.evaluate(request)
+                decision = self.control_plane.evaluate(
+                    request
+                )
 
                 result.transcript.append({
                     "role": "control_plane",
@@ -101,22 +136,37 @@ class AgentRunner:
                     "reasons": decision.reasons,
                 })
 
-                if decision.decision != DecisionType.ALLOW:
-                    result.blocked_actions.append(request.capability)
+                if (
+                    decision.decision
+                    != DecisionType.ALLOW
+                ):
+                    result.blocked_actions.append(
+                        request.capability
+                    )
 
                     if self.stop_on_block:
                         break
 
                     continue
 
-            environment = self.environments.get(request.tool)
+            environment = self.environments.get(
+                request.tool
+            )
 
             if environment is None:
                 break
 
             tool_result = environment.execute(request)
 
-            result.executed_actions.append(request.capability)
+            if self.flow_guard is not None:
+                self.flow_guard.observe(
+                    request,
+                    tool_result,
+                )
+
+            result.executed_actions.append(
+                request.capability
+            )
 
             result.transcript.append({
                 "role": "tool",
