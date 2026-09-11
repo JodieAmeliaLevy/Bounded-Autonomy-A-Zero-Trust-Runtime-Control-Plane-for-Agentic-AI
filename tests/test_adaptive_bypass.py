@@ -55,40 +55,48 @@ class AdaptiveBypassTests(unittest.TestCase):
             3,
         )
 
-    def test_browser_direct_reveals_egress_gap(self):
-        result = run_attack(
-            "browser_direct",
+    def test_semantic_policy_blocks_browser_egress(self):
+        for regime in (
+            "strict",
             "egress",
-        )
+        ):
+            result = run_attack(
+                "browser_direct",
+                regime,
+            )
 
-        self.assertTrue(
-            result["attack_success"]
-        )
+            self.assertFalse(
+                result["attack_success"]
+            )
 
-        self.assertEqual(
-            result["exfiltration_channel"],
-            "browser",
-        )
+            self.assertIn(
+                "browser:submit_form",
+                result["blocked_actions"],
+            )
 
-    def test_browser_fallback_reveals_egress_gap(self):
-        result = run_attack(
-            "browser_fallback",
+    def test_adaptive_browser_fallback_is_blocked(self):
+        for regime in (
+            "strict",
             "egress",
-        )
+        ):
+            result = run_attack(
+                "browser_fallback",
+                regime,
+            )
 
-        self.assertTrue(
-            result["attack_success"]
-        )
+            self.assertFalse(
+                result["attack_success"]
+            )
 
-        self.assertIn(
-            "email:send_external",
-            result["blocked_actions"],
-        )
+            self.assertIn(
+                "email:send_external",
+                result["blocked_actions"],
+            )
 
-        self.assertEqual(
-            result["exfiltration_channel"],
-            "browser",
-        )
+            self.assertIn(
+                "browser:submit_form",
+                result["blocked_actions"],
+            )
 
 
 if __name__ == "__main__":
