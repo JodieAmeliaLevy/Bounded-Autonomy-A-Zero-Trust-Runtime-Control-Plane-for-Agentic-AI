@@ -27,12 +27,14 @@ class AgentRunner:
         principal: Principal,
         control_plane: ControlPlane | None = None,
         authorizer: IntentAuthorizer | None = None,
+        stop_on_block: bool = True,
     ) -> None:
         self.provider = provider
         self.environments = environments
         self.principal = principal
         self.control_plane = control_plane
         self.authorizer = authorizer
+        self.stop_on_block = stop_on_block
 
     def run(self, task: str, max_steps: int = 8) -> AgentRun:
         result = AgentRun(
@@ -70,7 +72,6 @@ class AgentRunner:
                 reversible=step.reversible,
             )
 
-            # Contextual authorization layer.
             if self.authorizer is not None:
                 allowed, reason = self.authorizer.authorize(request)
 
@@ -83,9 +84,12 @@ class AgentRunner:
 
                 if not allowed:
                     result.blocked_actions.append(request.capability)
-                    break
 
-            # Existing monitor / policy control plane.
+                    if self.stop_on_block:
+                        break
+
+                    continue
+
             if self.control_plane is not None:
                 decision = self.control_plane.evaluate(request)
 
@@ -99,7 +103,11 @@ class AgentRunner:
 
                 if decision.decision != DecisionType.ALLOW:
                     result.blocked_actions.append(request.capability)
-                    break
+
+                    if self.stop_on_block:
+                        break
+
+                    continue
 
             environment = self.environments.get(request.tool)
 
