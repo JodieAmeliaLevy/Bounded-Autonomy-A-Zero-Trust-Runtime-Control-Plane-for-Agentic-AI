@@ -56,7 +56,7 @@ def classify_action(
 
     if (
         request.tool == "browser"
-        and request.action == "submit_form"
+        and request.action in {"submit_form", "submit_artifact"}
     ):
         url = str(
             request.arguments.get("url", "")
