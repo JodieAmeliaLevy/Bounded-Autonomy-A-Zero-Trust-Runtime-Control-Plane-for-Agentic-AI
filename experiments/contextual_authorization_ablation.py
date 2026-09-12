@@ -92,6 +92,7 @@ def run_scenario(scenario_name: str, regime: str) -> dict:
             "email": email_env,
             "filesystem": filesystem_env,
         },
+        mandate=config["intent"],
         principal=Principal("agent"),
         authorizer=build_authorizer(
             regime,

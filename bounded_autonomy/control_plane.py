@@ -25,7 +25,9 @@ class ControlPlane:
         risk = classify_risk(request)
         monitor_result = self.monitor.inspect(request)
         decision = self.policy.decide(request, risk, monitor_result)
+
         if decision.decision == DecisionType.ESCALATE:
-            self.review_queue.submit(request, decision)
+            decision.review = self.review_queue.submit(request, decision)
+
         self.audit.write(request, decision)
         return decision

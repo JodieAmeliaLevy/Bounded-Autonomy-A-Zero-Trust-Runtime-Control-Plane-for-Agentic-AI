@@ -74,6 +74,7 @@ def run_attack(
             "transform": transform,
             "browser": browser,
         },
+        mandate=INTENT,
         principal=Principal(
             "lineage-attacker"
         ),

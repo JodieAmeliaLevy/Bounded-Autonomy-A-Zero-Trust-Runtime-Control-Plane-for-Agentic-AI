@@ -91,6 +91,7 @@ def run_attack(
             "browser": browser_env,
             "filesystem": filesystem_env,
         },
+        mandate=INTENT,
         principal=Principal(
             "adaptive-scripted-agent"
         ),
@@ -234,7 +235,7 @@ def main() -> None:
     }
 
     results_path = Path(
-        "results/adaptive_bypass_results.json"
+        "results/adaptive_bypass_eval.json"
     )
 
     results_path.parent.mkdir(
