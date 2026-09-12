@@ -13,11 +13,18 @@ from .semantics import (
 @dataclass
 class InformationFlowGuard:
     """
-    Minimal research prototype for tracking sensitive information
-    across agent actions.
+    Superseded control, kept as a comparison arm.
 
-    This version uses exact synthetic-value tracking. It is deliberately
-    simple; later experiments will test transformations that defeat it.
+    This tracks the exact string returned by a protected read and blocks
+    outbound payloads containing it. Transformation defeats it: base64,
+    reversal, chunking and paraphrase all pass. That is the finding in
+    docs/findings/transformation_and_lineage.md, and it is why
+    `data_lineage.LineageFlowGuard` exists.
+
+    It is deliberately not fixed. Deleting the broken control would remove
+    the arm that makes the improvement measurable, and a reader should be
+    able to reproduce the failure rather than take the write-up on trust.
+    Do not use it as the guard in new experiments.
     """
 
     protected_resources: frozenset[str]

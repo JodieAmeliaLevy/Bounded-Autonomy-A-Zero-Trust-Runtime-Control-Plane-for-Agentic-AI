@@ -5,6 +5,8 @@ from ..models import ActionRequest
 
 
 class SyntheticShell(Environment):
+    trusted_output = False
+
     """Never executes real system commands."""
 
     def execute(self, request: ActionRequest) -> dict:
