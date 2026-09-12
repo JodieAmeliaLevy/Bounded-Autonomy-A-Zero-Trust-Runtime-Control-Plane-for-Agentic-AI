@@ -4,13 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bounded-autonomy"
-version = "0.1.0"
-description = "Research scaffold for a zero-trust runtime control plane for agentic AI"
+version = "0.3.5"
+description = "Zero-trust runtime enforcement research for agentic AI"
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [{name = "Jodie Levy"}]
 license = {text = "MIT"}
 dependencies = []
+
+[project.optional-dependencies]
+real-model = ["openai>=1.0.0"]
 
 [project.scripts]
 bounded-autonomy = "bounded_autonomy.cli:main"

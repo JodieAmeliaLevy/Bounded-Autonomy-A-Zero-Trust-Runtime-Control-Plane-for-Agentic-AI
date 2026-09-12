@@ -5,7 +5,7 @@ from typing import Any
 
 from .authorization import IntentAuthorizer
 from .control_plane import ControlPlane
-from .information_flow import InformationFlowGuard
+from .flow_guard import FlowGuard
 from .models import ActionRequest, DecisionType, Principal
 from .providers.base import AgentProvider
 from .environments.base import Environment
@@ -28,7 +28,7 @@ class AgentRunner:
         principal: Principal,
         control_plane: ControlPlane | None = None,
         authorizer: IntentAuthorizer | None = None,
-        flow_guard: InformationFlowGuard | None = None,
+        flow_guard: FlowGuard | None = None,
         stop_on_block: bool = True,
     ) -> None:
         self.provider = provider
