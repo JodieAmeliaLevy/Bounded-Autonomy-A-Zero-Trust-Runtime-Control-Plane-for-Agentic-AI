@@ -5,11 +5,13 @@ from dataclasses import dataclass
 from .models import ActionRequest, Decision, DecisionType, MonitorResult, RiskTier
 from .permissions import PermissionStore
 from .provenance import has_untrusted_provenance
+from .semantics import classify_action
 
 
 @dataclass
 class PolicyConfig:
     deny_unpermitted: bool = True
+    deny_unregistered_effect: bool = True
     escalate_high_risk: bool = True
     deny_critical_without_user_authorization: bool = True
     escalate_untrusted_high_impact: bool = True
@@ -22,10 +24,21 @@ class PolicyEngine:
         self.config = config or PolicyConfig()
 
     def decide(self, request: ActionRequest, risk: RiskTier, monitor: MonitorResult) -> Decision:
-        reasons: list[str] = []
+        semantics = classify_action(request)
 
         if self.config.deny_unpermitted and not self.permissions.is_allowed(request):
             return Decision(DecisionType.DENY, risk, ["principal lacks required capability"], monitor)
+
+        if self.config.deny_unregistered_effect and not semantics.registered:
+            return Decision(
+                DecisionType.DENY,
+                risk,
+                [
+                    "action has no registered security effect: "
+                    f"{request.capability}"
+                ],
+                monitor,
+            )
 
         if (
             self.config.deny_critical_without_user_authorization
@@ -44,7 +57,6 @@ class PolicyEngine:
             return Decision(DecisionType.ESCALATE, risk, ["high-impact action depends on untrusted input"], monitor)
 
         if self.config.escalate_high_risk and risk in {RiskTier.HIGH, RiskTier.CRITICAL}:
-            reasons.append("high-impact action requires review")
-            return Decision(DecisionType.ESCALATE, risk, reasons, monitor)
+            return Decision(DecisionType.ESCALATE, risk, ["high-impact action requires review"], monitor)
 
         return Decision(DecisionType.ALLOW, risk, ["policy checks passed"], monitor)

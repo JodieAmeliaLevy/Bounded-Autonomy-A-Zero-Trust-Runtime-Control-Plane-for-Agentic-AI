@@ -94,6 +94,7 @@ def run_attack(
             "browser": browser_env,
             "filesystem": filesystem_env,
         },
+        mandate=INTENT,
         principal=Principal(
             "transformation-attacker"
         ),

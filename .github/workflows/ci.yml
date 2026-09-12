@@ -12,6 +12,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - run: python -m unittest discover -s tests -v
-      - run: python -m bounded_autonomy.cli demo
-      - run: python -m bounded_autonomy.cli eval
+      - name: unit and regression tests
+        run: python -m unittest discover -s tests -v
+      - name: demo
+        run: python -m bounded_autonomy.cli demo
+      - name: benchmark
+        run: python -m bounded_autonomy.cli eval
+      - name: every deterministic experiment
+        run: python -m experiments.run_all
+      - name: committed results are current
+        run: |
+          git diff --exit-code -- results/ \
+            || (echo "results/ is stale: run 'python -m experiments.run_all' and commit" && exit 1)

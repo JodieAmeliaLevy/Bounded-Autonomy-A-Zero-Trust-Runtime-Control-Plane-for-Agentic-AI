@@ -7,5 +7,13 @@ dist/
 build/
 *.egg-info/
 .DS_Store
-results/*.json
+
+# Audit logs are regenerated on every run and are noisy.
+results/audit/
 results/*.jsonl
+
+# Real-model output stays out of the repository: it is a sample from a
+# stochastic process and one local run should not become canonical
+# evidence. The deterministic results in results/ are committed instead.
+results/real_model_*.json
+*.bundle

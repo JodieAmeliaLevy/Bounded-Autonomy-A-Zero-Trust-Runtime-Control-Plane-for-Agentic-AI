@@ -31,6 +31,8 @@ class ControlPlaneTests(unittest.TestCase):
             action="read",
             arguments={"path": "/workspace/readme.txt"},
             provenance=(Provenance("user", True),),
+            user_authorized=True,
+            reversible=True,
         )
         decision = plane.evaluate(request)
         self.assertEqual(decision.decision, DecisionType.ALLOW)

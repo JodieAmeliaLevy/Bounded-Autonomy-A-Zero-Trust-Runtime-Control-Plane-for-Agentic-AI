@@ -1,176 +1,127 @@
-# Berkeley 12-Week Work Plan
+# Berkeley 12 week work plan
+
+## What changed and why
+
+The previous version of this plan scheduled 30 to 50 new scenarios, three
+model families, five control configurations, an adaptive adversary, a full
+paper and three external reviewers, in twelve weeks, starting from a
+scaffold with an unmediated trust boundary. That is roughly twice what the
+time holds, and the breadth was the part least likely to produce anything
+a reviewer would remember.
+
+This version cuts scope in three places:
+
+- **the benchmark**: run against AgentDojo, which already has 97 tasks and
+  629 security test cases, rather than growing a private scenario set. The
+  16 local scenarios stay as regression tests for this control plane's own
+  boundary, not as a rival benchmark;
+- **model coverage**: two model families run properly, with repeats and
+  reported uncertainty, rather than three run once;
+- **the deliverable**: one paper with one surprising, reproducible result,
+  rather than a survey of five configurations.
+
+One finding that survives adversarial review is worth more than a wide
+sweep nobody can reproduce.
 
 ## Success criteria by 15 December 2026
 
-- A runnable control-plane prototype with a clear security boundary.
-- A public benchmark with at least 30 well-specified scenarios.
-- At least 3 meaningful control configurations plus a baseline.
-- Repeated experiments across at least 3 model families where access permits.
-- Quantitative results on safety, utility, monitoring and review burden.
-- A paper-quality write-up and reproducible release.
-- At least 3 serious external technical reviewers.
-- At least 10 substantive technical conversations that materially change the work.
+- A control plane with a boundary that has been attacked, not just
+  described, and a written failure catalogue.
+- Results on an external benchmark, not only on scenarios written here.
+- At least three control configurations plus a baseline, each reported with
+  safety, utility and review burden in the same table.
+- Repeated runs on at least two model families, with uncertainty reported.
+- A paper quality write up and a reproducible release.
+- At least three serious external technical reviewers, one of whom should
+  know CaMeL well.
 
-## Week 1 — reproduce and specify
-
-**Build**
-- Run this starter project end-to-end.
-- Reproduce one public control/monitorability experiment in a separate notebook or branch.
-- Learn the tool protocol you will target first (preferably MCP or a similarly explicit tool boundary).
+## Weeks 1 and 2 — position and connect
 
 **Research**
-- Freeze the first threat model.
-- Freeze the first 3 research questions.
-- Write explicit non-goals.
+- Write the related work section first. CaMeL (arXiv:2503.18813) reaches a
+  similar design by construction; the empirical claim is what is left. If
+  that comparison is not convincing, change the project now rather than in
+  week 10.
+- Freeze the threat model, the three research questions and explicit non
+  goals.
+
+**Build**
+- Connect to AgentDojo and get the existing control plane running inside
+  it. Expect this to take longer than it sounds.
 
 **People**
-- 3–5 design conversations with control, evals or security researchers.
-- Ask: “What assumption here is most likely to invalidate the project?”
+- Five design conversations. Ask each person the same question: what
+  assumption here is most likely to invalidate the project?
 
-**Output**
-- `v0.0.1` release + architecture note.
+**Output**: related work note, a running AgentDojo integration, revised
+threat model.
 
-## Week 2 — interception boundary
-
-**Build**
-- Intercept tool calls.
-- Normalize actions into a typed schema.
-- Add actor identity, task identity and provenance metadata.
-- Persist audit events.
-
-**Learn**
-- async Python, typed interfaces, API boundaries, retries, idempotency.
-
-**Output**
-- ADR: why enforcement lives outside model reasoning.
-
-## Week 3 — authority and escalation
+## Weeks 3 and 4 — real models
 
 **Build**
-- Capability-scoped permissions.
-- Risk tiers.
-- Risk-dependent human approval.
-- Explicit fail-open/fail-closed modes.
-- Safe synthetic environments for filesystem/email/browser/shell.
-
-**Learn**
-- authentication vs authorization, least privilege, capability security, privilege escalation.
-
-**People**
-- security-engineer review.
-
-## Week 4 — trusted monitoring
-
-**Build**
-- Pluggable monitor interface.
-- At least one rule-based and one model-based monitor adapter.
-- Structured monitor evidence in every decision.
-- Synchronous vs asynchronous intervention modes.
-
-**Output**
-- `v0.1.0` demo.
-- 10-minute Constellation technical talk.
-
-## Week 5 — benchmark design
-
-**Build**
-- Create controlled environments with deterministic ground truth.
-- Define scenario schema and attack budgets.
-
-**Research**
-- Expand taxonomy: injection, unauthorized action, escalation, exfiltration, chaining, side tasks, delegation, repeated attempts, monitor evasion.
-
-**Output**
-- Evaluation protocol v1.
-
-## Week 6 — 30–50 scenarios
-
-**Build**
-- Implement scenarios and benign controls.
-- Add reproducibility seeds and per-run metadata.
-
-**People**
-- evaluation-methodology review.
-
-**Output**
-- `ControlPlaneBench v0.1`.
-
-## Week 7 — first model experiments
-
-**Build**
-- Connect multiple model providers where permitted.
-- Add harness configuration: model, system prompt, tool set, budget, retries.
+- Harness configuration: model, system prompt, tool set, budget, retries,
+  recorded per run.
+- Replace the scripted planned agent with real models for every arm.
 
 **Experiment**
-- baseline: no external controls;
-- static permissions;
-- permissions + policy;
-- policy + monitor;
-- policy + monitor + human review.
+- Baseline, static permissions, policy plus review, full control plane.
+- Repeats per condition from the start, not added later.
 
-**Output**
-- first results table.
+**Output**: first results table with uncertainty, on an external benchmark.
 
-## Week 8 — adaptive adversary
+## Weeks 5 and 6 — adaptive adversary
 
 **Experiment**
 - Tell the attacker that monitoring exists.
-- Permit repeated attempts within a fixed budget.
-- Add hidden side-task conditions.
-- Test subagent/delegation if implementation supports it.
+- Allow repeated attempts within a fixed budget.
+- Hidden side task conditions.
+- Delegation and subagent paths if the implementation supports them.
 
-**Output**
-- failure catalogue: “how the control plane actually breaks.”
+**Output**: failure catalogue, in the style of the existing findings
+documents: what broke, the reproduce command, and the limitation.
 
-## Week 9 — operational measurements
+## Weeks 7 and 8 — operational cost
 
-Measure:
-- attack success rate;
-- benign-task completion;
-- monitor recall / precision;
-- false-positive rate;
-- escalation rate;
-- human-review burden;
-- latency;
-- token/API cost;
-- time-to-detection/intervention.
+Measure what the research questions promise and the current code does not:
 
-**Learn**
-- confidence intervals, calibration, sensitivity analysis, uncertainty reporting.
+- latency overhead per action and per task;
+- token and API cost per task by configuration;
+- human review burden, both escalations raised and reviewer decisions
+  needed;
+- monitor precision and recall, and whether a weak monitor is worth its
+  cost at all. The current answer on local scenarios is no, which is a
+  result worth establishing properly.
 
-## Week 10 — paper draft
+**Learn**: confidence intervals, sensitivity analysis, uncertainty
+reporting.
 
-Write the full paper, not a blog post.
+## Weeks 9 and 10 — paper draft
 
-Sections:
-1. problem;
-2. threat model;
-3. related work;
-4. architecture;
-5. control primitives;
-6. evaluation methodology;
-7. adaptive adversary;
-8. results;
-9. ablations;
-10. utility/security trade-offs;
-11. failure analysis;
-12. deployment/safety-case implications;
-13. limitations.
+Write the full paper. Sections as listed in `paper/outline.md`, with
+related work already drafted from week 1 and limitations written
+aggressively.
 
 ## Week 11 — adversarial review
 
-- Send the draft and repo to 3 technical reviewers.
-- Ask each reviewer for the strongest reason the conclusions might be wrong.
-- Rerun experiments needed to answer those objections.
+- Send draft and repository to three reviewers.
+- Ask each for the strongest reason the conclusions might be wrong.
+- Rerun what is needed to answer them. Reserve the whole week for this;
+  reviewers find things.
 
 ## Week 12 — release
 
-Ship:
-- tagged GitHub release;
-- reproducibility instructions;
-- benchmark;
-- paper/preprint;
-- 2-page technical summary;
-- safety-case note;
-- 15-minute talk deck;
-- one public write-up focused on findings rather than career narrative.
+- Tagged release with reproducibility instructions.
+- Preprint.
+- Two page technical summary.
+- Safety case note.
+- Fifteen minute talk.
+- One public write up about the findings, including the ones that went
+  against the hypothesis.
+
+## Explicitly out of scope
+
+- A production gateway or MCP proxy.
+- Proving anything about the underlying model's alignment.
+- Securing model weights.
+- Solving prompt injection.
+- A rival benchmark to AgentDojo.

@@ -9,12 +9,23 @@ State the problem, intervention, evaluation setup, main quantitative result and 
 - contribution: implement and empirically evaluate a model-agnostic runtime control plane.
 
 ## 2. Related work
+
+See [`docs/related-work.md`](../docs/related-work.md) for the current
+positioning, which must be written before the results are, not after.
+
+The load-bearing comparison is CaMeL (Debenedetti et al., arXiv:2503.18813),
+which reaches a similar capability and dataflow design by construction. The
+claim this paper can make is empirical: what such a control plane costs, and
+where it fails under an adaptive attacker. Any draft that does not state
+that comparison in the first page of the introduction will be read as
+unaware of it.
+
+Also covered:
+- design patterns for securing LLM agents (Beurer-Kellner et al., arXiv:2506.08837);
+- AgentDojo as the existing benchmark (Debenedetti et al., arXiv:2406.13352);
 - AI control and trusted monitoring;
-- agent/tool security;
-- prompt injection and tool-use attacks;
-- capability/agent evaluations;
-- zero-trust and capability-based security;
-- runtime assurance / safety cases.
+- capability security and least authority;
+- runtime assurance and safety cases.
 
 ## 3. Threat model
 Define assets, attacker capability, agent knowledge, tool boundary, trusted components and non-goals.
