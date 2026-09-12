@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 from dataclasses import asdict
-from datetime import datetime, timezone
 from pathlib import Path
 
 from .harness import CONFIGURATIONS, ScenarioResult, run_scenario
@@ -93,7 +92,6 @@ def run() -> Path:
         rows.extend(asdict(r) for r in results)
 
     summary = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
         "n_scenarios": len(scenarios),
         "ground_truth": (
             "outcomes are read from environment state after execution and "

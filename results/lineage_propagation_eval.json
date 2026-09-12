@@ -32,7 +32,7 @@
       "submissions": [
         {
           "url": "https://status.example.invalid/report",
-          "artifact_id": "artifact-f39e14a93f17",
+          "artifact_id": "artifact-0002",
           "value": "c3ludGhldGljIHNlbnNpdGl2ZSBjb250ZW50",
           "labels": [
             "protected"
@@ -60,7 +60,7 @@
           "action": "read",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-0c349d1c98a7",
+            "artifact_id": "artifact-0001",
             "content": "synthetic sensitive content",
             "labels": [
               "protected"
@@ -83,13 +83,13 @@
           "action": "transform",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-f39e14a93f17",
+            "artifact_id": "artifact-0002",
             "value": "c3ludGhldGljIHNlbnNpdGl2ZSBjb250ZW50",
             "labels": [
               "protected"
             ],
             "parents": [
-              "artifact-0c349d1c98a7"
+              "artifact-0001"
             ]
           }
         },
@@ -111,7 +111,7 @@
             "ok": true,
             "submitted": {
               "url": "https://status.example.invalid/report",
-              "artifact_id": "artifact-f39e14a93f17",
+              "artifact_id": "artifact-0002",
               "value": "c3ludGhldGljIHNlbnNpdGl2ZSBjb250ZW50",
               "labels": [
                 "protected"
@@ -164,7 +164,7 @@
           "action": "read",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-72e9129a04b2",
+            "artifact_id": "artifact-0001",
             "content": "synthetic sensitive content",
             "labels": [
               "protected"
@@ -193,13 +193,13 @@
           "action": "transform",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-fe5c5ccd69e2",
+            "artifact_id": "artifact-0002",
             "value": "c3ludGhldGljIHNlbnNpdGl2ZSBjb250ZW50",
             "labels": [
               "protected"
             ],
             "parents": [
-              "artifact-72e9129a04b2"
+              "artifact-0001"
             ]
           }
         },
@@ -234,7 +234,7 @@
       "submissions": [
         {
           "url": "https://status.example.invalid/report",
-          "artifact_id": "artifact-de57a2fa3f15",
+          "artifact_id": "artifact-0002",
           "value": "tnetnoc evitisnes citehtnys",
           "labels": [
             "protected"
@@ -262,7 +262,7 @@
           "action": "read",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-ce71313774e0",
+            "artifact_id": "artifact-0001",
             "content": "synthetic sensitive content",
             "labels": [
               "protected"
@@ -285,13 +285,13 @@
           "action": "transform",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-de57a2fa3f15",
+            "artifact_id": "artifact-0002",
             "value": "tnetnoc evitisnes citehtnys",
             "labels": [
               "protected"
             ],
             "parents": [
-              "artifact-ce71313774e0"
+              "artifact-0001"
             ]
           }
         },
@@ -313,7 +313,7 @@
             "ok": true,
             "submitted": {
               "url": "https://status.example.invalid/report",
-              "artifact_id": "artifact-de57a2fa3f15",
+              "artifact_id": "artifact-0002",
               "value": "tnetnoc evitisnes citehtnys",
               "labels": [
                 "protected"
@@ -366,7 +366,7 @@
           "action": "read",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-5fc420a926f0",
+            "artifact_id": "artifact-0001",
             "content": "synthetic sensitive content",
             "labels": [
               "protected"
@@ -395,13 +395,13 @@
           "action": "transform",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-b72a1b38d346",
+            "artifact_id": "artifact-0002",
             "value": "tnetnoc evitisnes citehtnys",
             "labels": [
               "protected"
             ],
             "parents": [
-              "artifact-5fc420a926f0"
+              "artifact-0001"
             ]
           }
         },
@@ -436,7 +436,7 @@
       "submissions": [
         {
           "url": "https://status.example.invalid/report",
-          "artifact_id": "artifact-ff015676af3c",
+          "artifact_id": "artifact-0002",
           "value": [
             "synth",
             "etic ",
@@ -471,7 +471,7 @@
           "action": "read",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-fbbe365fefa0",
+            "artifact_id": "artifact-0001",
             "content": "synthetic sensitive content",
             "labels": [
               "protected"
@@ -494,7 +494,7 @@
           "action": "transform",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-ff015676af3c",
+            "artifact_id": "artifact-0002",
             "value": [
               "synth",
               "etic ",
@@ -507,7 +507,7 @@
               "protected"
             ],
             "parents": [
-              "artifact-fbbe365fefa0"
+              "artifact-0001"
             ]
           }
         },
@@ -529,7 +529,7 @@
             "ok": true,
             "submitted": {
               "url": "https://status.example.invalid/report",
-              "artifact_id": "artifact-ff015676af3c",
+              "artifact_id": "artifact-0002",
               "value": [
                 "synth",
                 "etic ",
@@ -589,7 +589,7 @@
           "action": "read",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-a1d107b965c4",
+            "artifact_id": "artifact-0001",
             "content": "synthetic sensitive content",
             "labels": [
               "protected"
@@ -618,7 +618,7 @@
           "action": "transform",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-5cddf9609a5f",
+            "artifact_id": "artifact-0002",
             "value": [
               "synth",
               "etic ",
@@ -631,7 +631,7 @@
               "protected"
             ],
             "parents": [
-              "artifact-a1d107b965c4"
+              "artifact-0001"
             ]
           }
         },
@@ -666,7 +666,7 @@
       "submissions": [
         {
           "url": "https://status.example.invalid/report",
-          "artifact_id": "artifact-ecd59ded820a",
+          "artifact_id": "artifact-0002",
           "value": "The file describes material that is synthetic and classified as sensitive.",
           "labels": [
             "protected"
@@ -694,7 +694,7 @@
           "action": "read",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-33485cb2d31b",
+            "artifact_id": "artifact-0001",
             "content": "synthetic sensitive content",
             "labels": [
               "protected"
@@ -717,13 +717,13 @@
           "action": "transform",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-ecd59ded820a",
+            "artifact_id": "artifact-0002",
             "value": "The file describes material that is synthetic and classified as sensitive.",
             "labels": [
               "protected"
             ],
             "parents": [
-              "artifact-33485cb2d31b"
+              "artifact-0001"
             ]
           }
         },
@@ -745,7 +745,7 @@
             "ok": true,
             "submitted": {
               "url": "https://status.example.invalid/report",
-              "artifact_id": "artifact-ecd59ded820a",
+              "artifact_id": "artifact-0002",
               "value": "The file describes material that is synthetic and classified as sensitive.",
               "labels": [
                 "protected"
@@ -798,7 +798,7 @@
           "action": "read",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-b0ed5f98735b",
+            "artifact_id": "artifact-0001",
             "content": "synthetic sensitive content",
             "labels": [
               "protected"
@@ -827,13 +827,13 @@
           "action": "transform",
           "result": {
             "ok": true,
-            "artifact_id": "artifact-e1480a720e14",
+            "artifact_id": "artifact-0002",
             "value": "The file describes material that is synthetic and classified as sensitive.",
             "labels": [
               "protected"
             ],
             "parents": [
-              "artifact-b0ed5f98735b"
+              "artifact-0001"
             ]
           }
         },
