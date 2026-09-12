@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any
-from uuid import uuid4
 
 from .models import ActionRequest
 from .semantics import (
@@ -25,6 +24,7 @@ class DataArtifact:
 class ArtifactStore:
     def __init__(self) -> None:
         self._artifacts: dict[str, DataArtifact] = {}
+        self._counter = 0
 
     def create(
         self,
@@ -32,8 +32,14 @@ class ArtifactStore:
         labels: frozenset[str] = frozenset(),
         parents: tuple[str, ...] = (),
     ) -> DataArtifact:
+        # Sequential rather than random: ids only need to be unique within
+        # a store, and a deterministic experiment should produce
+        # byte-identical output so that a diff of results/ shows which
+        # outcome changed rather than which identifiers were regenerated.
+        self._counter += 1
+
         artifact = DataArtifact(
-            artifact_id=f"artifact-{uuid4().hex[:12]}",
+            artifact_id=f"artifact-{self._counter:04d}",
             value=value,
             labels=labels,
             parents=parents,

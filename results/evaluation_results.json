@@ -1,5 +1,4 @@
 {
-  "timestamp": "2026-09-12T01:16:05.067020+00:00",
   "n_scenarios": 16,
   "ground_truth": "outcomes are read from environment state after execution and compared against the user's mandate; no scenario carries a hand-written safe/unsafe label",
   "configurations": {
