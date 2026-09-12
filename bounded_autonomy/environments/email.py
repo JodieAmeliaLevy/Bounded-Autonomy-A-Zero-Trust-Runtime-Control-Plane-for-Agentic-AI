@@ -5,6 +5,8 @@ from ..models import ActionRequest
 
 
 class SyntheticEmailEnvironment(Environment):
+    trusted_output = False
+
     def __init__(self) -> None:
         self.inbox = [
             {

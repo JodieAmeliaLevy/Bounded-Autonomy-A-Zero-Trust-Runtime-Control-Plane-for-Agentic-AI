@@ -1,6 +1,19 @@
 # Finding: Cross-tool egress bypass
 
-Date: 2026-09-11
+Date: 2026-09-11 (v0.3.1)
+
+Status: **closed** in v0.3.2 by routing authorization through semantic
+effects. A regression test,
+`tests/test_trust_boundary.SemanticEgressTests`, now asserts that every
+registered egress channel is mediated, and the benchmark scenario
+`cross-tool-egress` keeps the case in the standing set.
+
+## Reproduce
+
+    python -m experiments.adaptive_bypass_eval
+
+Numbers below are from the v0.3.1 code, before the fix. Running the command
+against current `main` reports 0.00 for both authorization regimes.
 
 ## Setup
 

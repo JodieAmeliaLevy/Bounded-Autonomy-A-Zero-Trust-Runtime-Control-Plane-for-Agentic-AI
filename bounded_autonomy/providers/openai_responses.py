@@ -6,7 +6,6 @@ import os
 from openai import OpenAI
 
 from .base import AgentProvider, AgentStep
-from ..models import Provenance
 
 
 TOOLS = [
@@ -91,10 +90,17 @@ class OpenAIResponsesProvider(AgentProvider):
         model: str | None = None,
     ) -> None:
         self.client = OpenAI()
-        self.model = model or os.environ.get(
-            "BOUNDED_AUTONOMY_MODEL",
-            "gpt-5.6-luna",
-        )
+        resolved = model or os.environ.get("BOUNDED_AUTONOMY_MODEL")
+
+        if not resolved:
+            raise RuntimeError(
+                "No model specified. Pass --model or set "
+                "BOUNDED_AUTONOMY_MODEL. Results are only meaningful "
+                "alongside the exact model identifier that produced them, "
+                "so there is deliberately no default."
+            )
+
+        self.model = resolved
 
     def _render_transcript(
         self,
@@ -163,15 +169,6 @@ files, credentials, or external recipients.
                 tool_name=tool_name,
                 tool_action=tool_action,
                 tool_arguments=args,
-                provenance=(
-                    Provenance(
-                        "model",
-                        False,
-                        "model-generated tool proposal",
-                    ),
-                ),
-                user_authorized=False,
-                reversible=(name != "send_email"),
             )
 
         text = getattr(

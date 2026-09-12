@@ -67,6 +67,7 @@ def run_once(
             "browser": browser_env,
             "filesystem": filesystem_env,
         },
+        mandate=INTENT,
         principal=Principal(
             "composition-attacker"
         ),
