@@ -9,3 +9,9 @@ dist/
 build/
 *.egg-info/
 .DS_Store
+
+.venv/
+.env
+__pycache__/
+*.pyc
+.DS_Store
