@@ -2,131 +2,159 @@
 
 **A zero-trust runtime control plane for agentic AI.**
 
-Bounded Autonomy is a research and engineering project for testing whether model-agnostic runtime controls can reduce unsafe or unauthorized agent actions while preserving useful task performance.
+[![CI](https://github.com/JodieAmeliaLevy/Bounded-Autonomy-A-Zero-Trust-Runtime-Control-Plane-for-Agentic-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/JodieAmeliaLevy/Bounded-Autonomy-A-Zero-Trust-Runtime-Control-Plane-for-Agentic-AI/actions/workflows/ci.yml)
 
-The project treats an AI agent as a potentially fallible or compromised principal. Proposed tool actions are intercepted before execution and evaluated against explicit authority, provenance, risk, monitoring, and escalation rules.
+> **Core security property: reasoning ≠ authorization.**
 
-## Research objective
+Bounded Autonomy is an experimental runtime-enforcement architecture for tool-using AI agents. The model may propose actions, but authority to execute them sits outside model reasoning at a typed action boundary.
 
-> How effectively can a model-agnostic runtime control plane prevent unauthorized or harmful actions by increasingly autonomous AI agents while preserving useful task performance?
+The project asks a practical question: **how much agent autonomy can be preserved while moving authorization, data-flow enforcement and high-impact decisions into infrastructure that the model cannot simply reason itself around?**
 
-The repository is designed to support three empirical questions:
+The project is deliberately failure-driven: implement a control, attack it, isolate the failure mode, then strengthen the architecture only where the experiment shows a stronger primitive is needed.
 
-1. **Control effectiveness** — which runtime controls most reduce unsafe or unauthorized actions?
-2. **Robustness** — do controls remain effective under prompt injection, privilege escalation, tool chaining, monitor evasion, and delegated/subagent behavior?
-3. **Cost of control** — what utility, latency, compute, and human-review costs accompany stronger controls?
+## Research progression
+
+| Version | Failure tested | What broke | Control introduced | Result in the synthetic harness |
+|---|---|---|---|---|
+| v0.3 | indirect prompt injection / recipient substitution | no contextual authority boundary | intent-scoped authorization | tested attack success 1.0 → 0.0 |
+| v0.3.1 | adaptive cross-tool egress | email-specific policy did not stop browser submission | adversarial repeated attempts | strict/egress attack success remained 0.5 |
+| v0.3.2 | semantic aliasing across tools | security policy bound too closely to tool names | semantic capabilities | tested cross-tool bypass closed |
+| v0.3.3 | authorized capability composition | allowed read + allowed destination could still leak protected data | information-flow guard | composed leak blocked |
+| v0.3.4 | base64 / reverse / chunk transforms | exact-value tracking lost the secret after transformation | transformation attack suite | syntactic transforms bypassed literal tracking |
+| v0.3.5 | transformed protected data | content no longer matched the original value | persistent artifact provenance / lineage | tested mediated transforms remained protected |
+
+These are **small synthetic experiments, not production-security claims**. See [`docs/results.md`](docs/results.md) for the result set and [`docs/limitations.md`](docs/limitations.md) for explicit non-claims and open failure modes.
 
 ## Architecture
 
-```text
-User intent
-    ↓
-Agent / model
-    ↓
-Proposed tool action
-    ↓
-┌──────────────────────────────────────────────┐
-│          BOUNDED AUTONOMY CONTROL PLANE      │
-│                                              │
-│ action normalisation                         │
-│   ↓                                          │
-│ identity / permission check                  │
-│   ↓                                          │
-│ provenance / trust check                     │
-│   ↓                                          │
-│ risk classification                          │
-│   ↓                                          │
-│ policy engine                                │
-│   ↓                                          │
-│ trusted monitor                              │
-│   ↓                                          │
-│ allow / deny / modify / escalate             │
-└──────────────────────────────────────────────┘
-    ↓
-Human approval when required
-    ↓
-Sandboxed / controlled execution
-    ↓
-Audit log + monitoring
+```mermaid
+flowchart TD
+    U[User intent] --> A[Agent / model]
+    A --> P[Proposed tool action]
+    P --> N[Normalize action semantics]
+    N --> I[Intent / authority check]
+    I --> F[Information-flow / lineage check]
+    F --> C[Control-plane policy + risk + monitor]
+    C -->|allow| E[Controlled execution]
+    C -->|deny| D[Block + audit]
+    C -->|escalate| H[Human review]
+    E --> O[Observe result + preserve provenance]
+    O --> A
 ```
 
-## What is implemented in this starter repository
+The key boundary is **before execution**: models propose; infrastructure authorizes.
 
-This is a deliberately small but runnable research scaffold. It includes:
+## Why tool-level permissions are not enough
 
-- typed action and decision objects;
-- least-privilege tool permissions;
-- risk tiers;
-- trusted vs. untrusted provenance handling;
-- policy enforcement;
-- a pluggable monitoring interface;
-- human-review escalation hooks;
-- an append-only JSONL audit log;
-- synthetic email, filesystem, browser and shell environments;
-- a baseline-vs-control-plane evaluation runner;
-- starter adversarial scenarios;
-- a research protocol, threat model, measurement plan, ADRs and paper outline;
-- CI tests suitable for GitHub.
+A capable agent can often reach the same security-relevant effect through different tools. Blocking `email.send_external` does not necessarily prevent external communication if the agent can submit the same data through a browser.
 
-The current repository **does not claim production security**. It is the starting point for a Berkeley research build whose purpose is to make the assumptions explicit, implement the control boundary, and measure where it fails.
+Bounded Autonomy therefore separates:
 
-## Quick start
+- **tool syntax** — specific APIs and action names;
+- **semantic capability** — e.g. `READ_RESOURCE` or `EXTERNAL_COMMUNICATION`;
+- **delegated authority** — what the user actually authorized;
+- **information provenance** — whether data descends from protected inputs;
+- **runtime decision** — allow, deny, modify or escalate before side effects occur.
+
+## What is implemented
+
+The current repository includes:
+
+- typed action, principal, provenance and decision objects;
+- contextual authorization derived from user intent;
+- semantic capability classification across filesystem, email and browser actions;
+- synthetic email, filesystem, browser, shell and transformation environments;
+- a composable runtime runner that mediates tool execution;
+- literal sensitive-value information-flow tracking;
+- persistent artifact provenance with parent links and `protected` labels;
+- risk, policy, monitoring, human-review and audit scaffolding;
+- adversarial experiments for prompt injection, recipient substitution, cross-tool bypass, capability composition, transformation bypass and lineage propagation;
+- **24 unit tests** plus GitHub Actions CI;
+- an experimental OpenAI Responses provider for later real-model evaluation.
+
+## What the experiments currently show
+
+Three architectural findings matter most:
+
+1. **Tool-specific authorization is not a sufficient security abstraction.** A semantically equivalent action through another tool can bypass a policy bound to one API surface.
+2. **Authorizing individual actions is not enough.** A permitted read composed with a permitted external destination can still create an impermissible information flow.
+3. **Literal-value tracking is brittle under transformation.** Persistent provenance survives the explicit mediated transformations tested here because the security label propagates independently of content equality.
+
+The third claim is intentionally narrow: it describes the current **lineage-aware mediated environment**. It does not show that arbitrary model-internal transformations, copied values, side channels or unmediated tools preserve provenance.
+
+## Reproduce the synthetic core
 
 Requires Python 3.11+.
 
 ```bash
+python -m unittest discover -s tests -v
 python -m bounded_autonomy.cli demo
 python -m bounded_autonomy.cli eval
-python -m unittest discover -s tests -v
 ```
 
-The eval command writes results to `results/`.
+Run the research experiments individually:
 
-## Suggested October–December build sequence
+```bash
+python -m experiments.contextual_authorization_ablation
+python -m experiments.adaptive_bypass_eval
+python -m experiments.data_flow_composition_eval
+python -m experiments.transformation_bypass_eval
+python -m experiments.lineage_propagation_eval
+```
 
-### Phase 1 — control plane (weeks 1–4)
-- replace the synthetic action adapter with a real agent/tool protocol integration;
-- implement an MCP gateway or equivalent tool-call proxy;
-- add capability-scoped permissions, authenticated principals and action schemas;
-- add policy state, denial reasons, structured escalation and durable logging;
-- add container/network sandboxing and explicit fail-open/fail-closed behavior;
-- demo v0.1 to technical reviewers.
+For the optional real-model experiment:
 
-### Phase 2 — benchmark (weeks 5–8)
-- expand to 30–50 realistic scenarios;
-- add prompt injection, privilege escalation, exfiltration, chained actions, side tasks, repeated-attempt attacks and monitor evasion;
-- integrate real frontier/open-weight models;
-- compare baseline, static permissions, policy enforcement, monitoring, and human review;
-- add benign-task controls and repeat runs.
+```bash
+pip install -e ".[real-model]"
+python -m experiments.real_model_prompt_injection
+```
 
-### Phase 3 — evidence (weeks 9–12)
-- measure attack success, benign utility, monitor precision/recall, escalation burden, latency and cost;
-- run ablations and adaptive-adversary experiments;
-- publish the implementation, benchmark and paper;
-- obtain external technical review before making strong claims.
+The real-model path requires provider credentials and is **not** part of the synthetic result set reported here.
 
-## Core outputs
+## Current research frontier
 
-1. **Bounded Autonomy** — runtime control-plane implementation.
-2. **ControlPlaneBench** — adversarial benchmark for tool-using agents.
-3. **Flagship paper** — *Bounded Autonomy: Evaluating a Zero-Trust Runtime Control Plane for Agentic AI*.
-4. **Safety-case note** — *From Evals to Deployment: A Safety Case Pattern for Agentic Systems*.
+The next experiments target the assumptions that v0.3.5 still depends on:
 
-See [`ROADMAP.md`](ROADMAP.md) for the detailed work plan.
+- **provenance stripping / laundering** — can protected content cross into an unlabelled value and escape the lineage-aware path?
+- **multi-input joins** — how should labels compose when protected and benign artifacts are combined?
+- **declassification** — what explicit authority is required to release or downgrade protected data?
+- **real-model evaluation** — do the same failure modes appear with actual tool-using models rather than scripted providers?
+- **utility and operational cost** — how do stronger controls affect benign-task completion, latency, false positives and human-review burden?
 
-## Repository principles
+## Repository map
 
-- Controls should live outside model reasoning when possible.
-- Every security claim must state its threat assumptions.
-- Safety results must be paired with benign-task utility.
-- Adaptive attackers matter more than one-shot prompts.
+- [`bounded_autonomy/`](bounded_autonomy/) — runtime enforcement implementation
+- [`experiments/`](experiments/) — adversarial experiments and ablations
+- [`tests/`](tests/) — tests for implemented security properties
+- [`docs/architecture.md`](docs/architecture.md) — architecture and trust boundaries
+- [`docs/security-model.md`](docs/security-model.md) — security principles and assumptions
+- [`docs/results.md`](docs/results.md) — current experimental results
+- [`docs/findings/`](docs/findings/) — failure analyses that drove design changes
+- [`docs/limitations.md`](docs/limitations.md) — limitations, non-claims and open attack surface
+- [`ROADMAP.md`](ROADMAP.md) — Berkeley research plan
+
+## Research principles
+
+- **Reasoning ≠ authorization.** The model does not grant itself authority.
+- Security policy should bind to effects, not API names.
+- Provenance should survive transformation when computation remains inside the mediated substrate.
+- Every security claim needs an explicit threat model.
+- Safety results should be paired with benign-task utility.
+- Adaptive attackers matter more than one-shot prompt tests.
 - A control that cannot be audited is difficult to govern.
-- A benchmark that cannot be reproduced is weak evidence.
+
+## Status
+
+Current prototype: **v0.3.5 — persistent provenance and lineage enforcement**.
+
+The synthetic core is reproducible and tested. Real-model evaluation, provenance-stripping attacks, multi-input label joins, explicit declassification and broader benchmark coverage remain open work.
 
 ## Author
 
-Jodie Levy — Constellation Visiting Fellow, Berkeley (October–December 2026)
+**Jodie Levy** — Constellation Visiting Fellow, Berkeley (October–December 2026).
+
+Research focus: runtime enforcement and security architecture for increasingly agentic AI systems, with an emphasis on moving from evaluation of risk to enforceable deployment-time controls.
 
 ## License
 
-MIT. Research outputs may later use a different publication license if required by collaborators or venues.
+MIT.
